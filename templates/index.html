@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Master - Smart Excel Daily Attendance Automator</title>
+    <meta name="description" content="Automate pointage and daily attendance integration into monthly Base RH Excel workbooks with 100% accuracy and style preservation.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-background-glow glow-1"></div>
+    <div class="app-background-glow glow-2"></div>
+
+    <div class="app-container">
+        <!-- Top Navigation / Header -->
+        <header class="app-header">
+            <div class="header-brand">
+                <div class="brand-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        <path d="M9 14l2 2 4-4"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="brand-title">ATTENDANCE MASTER</h1>
+                    <p class="brand-subtitle">Smart Daily-to-Monthly Pointage Automation Engine</p>
+                </div>
+            </div>
+            <div class="header-status">
+                <span class="status-pill status-ready" id="envStatusBadge">
+                    <span class="status-dot"></span>
+                    Anaconda Python 3.12 &bull; OpenPyXL Active
+                </span>
+                <button class="btn btn-outline btn-sm" id="btnRefreshFiles" title="Scan folder for new Excel files">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                    </svg>
+                    Refresh Files
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="app-main">
+            <!-- Step 1: File Selection Grid -->
+            <section class="section-card" id="fileSelectionSection">
+                <div class="section-header">
+                    <div class="step-badge">1</div>
+                    <div>
+                        <h2 class="section-title">Select Excel Workbooks</h2>
+                        <p class="section-desc">Choose your Monthly Base RH file and the Daily Attendance file(s) to process.</p>
+                    </div>
+                </div>
+
+                <div class="file-grid">
+                    <!-- Base Monthly File Card -->
+                    <div class="file-selector-card" id="baseFileCard">
+                        <div class="card-icon base-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-label">BASE RH MONTHLY WORKBOOK</div>
+                            <h3 class="card-filename" id="baseFileNameDisplay">Detecting files...</h3>
+                            <div class="card-meta" id="baseFileMetaDisplay">Scanning project folder...</div>
+                            
+                            <div class="file-action-row">
+                                <select class="custom-select" id="baseFileSelect">
+                                    <option value="">Select detected Base RH file...</option>
+                                </select>
+                                <label class="btn btn-outline btn-sm upload-btn" for="uploadBaseInput">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                                    </svg>
+                                    Browse
+                                    <input type="file" id="uploadBaseInput" accept=".xlsx,.xls" hidden>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Daily Attendance File Card -->
+                    <div class="file-selector-card" id="dailyFileCard">
+                        <div class="card-icon daily-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-label">DAILY ATTENDANCE FILE(S)</div>
+                            <h3 class="card-filename" id="dailyFileNameDisplay">Detecting files...</h3>
+                            <div class="card-meta" id="dailyFileMetaDisplay">Scanning project folder...</div>
+
+                            <div class="file-action-row">
+                                <select class="custom-select" id="dailyFileSelect">
+                                    <option value="">Select detected daily attendance file...</option>
+                                </select>
+                                <label class="btn btn-outline btn-sm upload-btn" for="uploadDailyInput">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                                    </svg>
+                                    Browse
+                                    <input type="file" id="uploadDailyInput" accept=".xlsx,.xls" multiple hidden>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Trigger Bar -->
+                <div class="action-bar-center">
+                    <button class="btn btn-primary btn-lg" id="btnAnalyze">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        Analyze &amp; Preview Matches
+                    </button>
+                </div>
+            </section>
+
+            <!-- Step 2: Live Analysis & Preview Section -->
+            <section class="section-card hidden" id="previewSection">
+                <div class="section-header">
+                    <div class="step-badge">2</div>
+                    <div>
+                        <h2 class="section-title">Pointage Verification &amp; Match Analysis</h2>
+                        <p class="section-desc">Review staff matching and status conversions before updating your Excel sheet.</p>
+                    </div>
+                </div>
+
+                <!-- Detection Banner -->
+                <div class="info-banner" id="detectionBanner">
+                    <div class="banner-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                    </div>
+                    <div class="banner-text">
+                        <strong id="bannerDateTitle">Detected Date: October 20, 2026 (Day 20)</strong>
+                        <span id="bannerDetails">Targeting Column 32 in Sheet: <code>EFFECTIF GLOBAL_SMOLLAN 10-2026</code></span>
+                    </div>
+                </div>
+
+                <!-- KPI Metric Grid -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <span class="kpi-title">Total Records</span>
+                        <span class="kpi-value" id="kpiTotal">0</span>
+                        <span class="kpi-sub" id="kpiMatched">100% Matched</span>
+                    </div>
+                    <div class="kpi-card kpi-success">
+                        <span class="kpi-title">Present (P)</span>
+                        <span class="kpi-value" id="kpiPresents">0</span>
+                        <span class="kpi-sub">Value: 0.5 (Part-Time)</span>
+                    </div>
+                    <div class="kpi-card kpi-purple">
+                        <span class="kpi-title">Day Off (D-O)</span>
+                        <span class="kpi-value" id="kpiDayOffs">0</span>
+                        <span class="kpi-sub">Value: 'D-O'</span>
+                    </div>
+                    <div class="kpi-card kpi-amber">
+                        <span class="kpi-title">Récup (R)</span>
+                        <span class="kpi-value" id="kpiRecups">0</span>
+                        <span class="kpi-sub">Value: 'R'</span>
+                    </div>
+                    <div class="kpi-card kpi-rose">
+                        <span class="kpi-title">Resigned (Démission)</span>
+                        <span class="kpi-value" id="kpiResigned">0</span>
+                        <span class="kpi-sub">Carried to rest of month</span>
+                    </div>
+                </div>
+
+                <!-- Processing Configuration Options -->
+                <div class="options-panel">
+                    <h3 class="options-panel-title">Automation &amp; Month-End Rules</h3>
+                    <div class="options-grid">
+                        <label class="toggle-control" id="lblExtendResigned">
+                            <input type="checkbox" id="chkExtendResigned" checked>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">
+                                <strong>Extend Resigned (Démission) to Rest of Month</strong>
+                                <small>Automatically sets Démission for all subsequent days (e.g. Day 21 to 31).</small>
+                            </span>
+                        </label>
+
+                        <label class="toggle-control" id="lblCarryForward">
+                            <input type="checkbox" id="chkCarryForward" checked>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">
+                                <strong>Carry Forward Resignations From Yesterday</strong>
+                                <small>If an employee was already marked Démission on day N-1, preserves it today.</small>
+                            </span>
+                        </label>
+
+                        <label class="toggle-control" id="lblMultiContract">
+                            <input type="checkbox" id="chkMultiContract" checked disabled>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">
+                                <strong>Multi-Contract Row Synchronization</strong>
+                                <small>Automatically updates both OUBAHA and OGLO NUTS rows for split employees.</small>
+                            </span>
+                        </label>
+
+                        <label class="toggle-control" id="lblUnmarkedAbsent">
+                            <input type="checkbox" id="chkUnmarkedAbsent">
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">
+                                <strong>Fill Unmarked Active Staff as Absent (0)</strong>
+                                <small>Leaves empty by default if unmarked in the daily export.</small>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Table Filter & Search Controls -->
+                <div class="table-controls">
+                    <div class="search-box">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="tableSearchInput" placeholder="Search merchandiser name...">
+                    </div>
+                    <div class="filter-pills" id="statusFilterPills">
+                        <button class="pill active" data-filter="all">All (<span id="pillCountAll">0</span>)</button>
+                        <button class="pill" data-filter="present">Present (<span id="pillCountPresent">0</span>)</button>
+                        <button class="pill" data-filter="dayoff">Day Off (<span id="pillCountDayOff">0</span>)</button>
+                        <button class="pill" data-filter="recup">Récup (<span id="pillCountRecup">0</span>)</button>
+                        <button class="pill" data-filter="resigned">Démission (<span id="pillCountResigned">0</span>)</button>
+                    </div>
+                </div>
+
+                <!-- Preview Table -->
+                <div class="table-wrapper">
+                    <table class="data-table" id="previewDataTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Merchandiser Name</th>
+                                <th>Export Status</th>
+                                <th>Mapped Base RH Value</th>
+                                <th>Target Day</th>
+                                <th>Base Rows Matched</th>
+                                <th>Contract / Company</th>
+                                <th>Match Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="previewTableBody">
+                            <!-- Injected by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Final Execution Bar -->
+                <div class="execution-card">
+                    <div class="execution-info">
+                        <h3>Ready to Update Monthly Excel Workbook</h3>
+                        <p>All formulas, cell styles, fonts, alignments, and other sheets will be 100% preserved.</p>
+                    </div>
+                    <div class="execution-actions">
+                        <button class="btn btn-success btn-lg" id="btnExecuteProcess">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                <polyline points="7 3 7 8 15 8"></polyline>
+                            </svg>
+                            Apply &amp; Save Updated Workbook
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Success Notification Card -->
+            <section class="section-card success-card hidden" id="successSection">
+                <div class="success-icon-wrap">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                </div>
+                <h2 class="success-title">Attendance Successfully Applied!</h2>
+                <p class="success-desc" id="successSummaryText">Updated 96 cells across 30 employee records.</p>
+                <div class="output-file-badge" id="outputFileBadge">
+                    <code id="outputFileNameDisplay">Base RH_Pointage Quotidien Octobre 2026 (Updated).xlsx</code>
+                </div>
+                <div class="success-actions">
+                    <a href="#" class="btn btn-primary btn-lg" id="btnDownloadOutput">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Download Updated Excel
+                    </a>
+                    <button class="btn btn-outline btn-lg" id="btnProcessAnother">
+                        Process Another Day
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Attendance Master &bull; Automated RH Pointage &bull; Built with Python &bull; OpenPyXL &bull; Flask</p>
+        </footer>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
